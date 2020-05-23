@@ -1,1 +1,1 @@
-# snippet_sendgrid_email
+# Readme

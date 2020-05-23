@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="en">
+  <body>
+    <p>Hello {{ user.first_name }},</p>
+    <p>
+        You have logged in today ({{ date|date:"Y-m-d H:i" }}) to our portal.
+        If this was not you, please contact our Supportteam!
+    </p>
+    <p>
+      Best regards,<br/>
+      Your Supportteam
+    </p>
+  </body>
+</html>
