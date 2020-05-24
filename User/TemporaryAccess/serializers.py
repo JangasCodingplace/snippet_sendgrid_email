@@ -12,8 +12,14 @@ class TemporaryAccessSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         if validated_data['group'] == 'pw':
-            return TemporaryAccess.objects.create_password_forgotten_access(**validated_data)
+            return TemporaryAccess.objects.create_password_forgotten_access(
+                validated_data['user']
+            )
         elif validated_data['group'] == 'l':
-            return TemporaryAccess.objects.create_login_access(**validated_data)
+            return TemporaryAccess.objects.create_login_access(
+                validated_data['user']
+            )
         else:
-            raise ValueError('Activation Key can not get created at this point!')
+            return TemporaryAccess.objects.create_activation_access(
+                validated_data['user']
+            )

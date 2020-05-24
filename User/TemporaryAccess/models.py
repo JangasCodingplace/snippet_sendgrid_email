@@ -82,7 +82,6 @@ class TemporaryAccess(models.Model):
         
         limit_time = self.creation_time + timedelta(minutes=period_time)
         return now() < limit_time
-        
 
     def __str__(self):
         return self.key
@@ -92,4 +91,11 @@ class TemporaryAccess(models.Model):
             self.key = uuid4().hex[:6]
             while TemporaryAccess.objects.filter(key=self.key).exists():
                 self.key = uuid4().hex[:6]
+        try:
+            TemporaryAccess.objects.get(
+                user=self.user,
+                group=self.group
+            ).delete()
+        except TemporaryAccess.DoesNotExist:
+            pass
         super().save(*args, **kwargs)

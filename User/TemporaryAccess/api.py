@@ -4,6 +4,9 @@ from django.contrib import auth
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.decorators import api_view
+from rest_framework.generics import GenericAPIView
+from rest_framework.authentication import SessionAuthentication
+from rest_framework.permissions import IsAuthenticated
 
 from django.contrib.auth import get_user_model
 User = get_user_model()
@@ -12,6 +15,70 @@ from User.User.serializers import BaseUserSerializer
 
 from .models import TemporaryAccess
 from .serializers import TemporaryAccessSerializer
+
+class RecreateActivationKeyAPI(GenericAPIView):
+    authentication_classes = (SessionAuthentication,)
+    permission_classes = (IsAuthenticated,)
+
+    serializer_class = TemporaryAccessSerializer
+
+    def post(self, request):
+        #t@active1.de
+        # # #
+        # Entry Data Validation
+        #
+        required_fields = [
+            'email',
+            'group'
+        ]
+        if [field for field in required_fields if field not in request.data] != []:
+            data = {
+                'err':'Invalid request data'
+            }
+            return Response(data, status=status.HTTP_400_BAD_REQUEST)
+        
+        if request.data['group'] != 'a':
+            data = {
+                'err':'Invalid request data'
+            }
+            return Response(data, status=status.HTTP_400_BAD_REQUEST)
+        # 
+        # ./Entry Data Validation
+        # # #
+
+        # # #
+        # Query Validation
+        #
+        try:
+            user = User.objects.get(
+                email=request.data['email']
+            )
+            request.data['user'] = user.id
+        except User.DoesNotExist:
+            data = {
+                'err':'Invalid User!'
+            }
+            return Response(data,status=status.HTTP_404_NOT_FOUND)
+        
+        if user.account_activated_by_key:
+            data = {
+                'err':'User Alreade activated by Email!'
+            }
+            return Response(data,status=status.HTTP_400_BAD_REQUEST)
+        # 
+        # ./Query Validation
+        # # #
+
+
+
+        temporary_access_serializer = self.get_serializer(
+            data=request.data
+        )
+
+        if temporary_access_serializer.is_valid(raise_exception=True):
+            access = temporary_access_serializer.save()
+
+        return Response({},status=status.HTTP_200_OK)
 
 @api_view(['POST',])
 def create_access(request):

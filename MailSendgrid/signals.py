@@ -27,7 +27,7 @@ def send_mail_to_user(*args, **kwargs):
         else:
             raw_mail_body = get_template('registration.html')
         mail = raw_mail_body.render(context)
-        # print(mail)
+        print(mail)
 
 
 @receiver(pre_save, sender=User)
