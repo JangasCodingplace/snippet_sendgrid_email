@@ -9,22 +9,26 @@ from django.db.models.signals import (
 )
 from django.contrib.auth.signals import user_logged_in
 
+from User.TemporaryAccess.models import TemporaryAccess
+
 User = get_user_model()
 
-@receiver(post_save, sender=User)
+@receiver(post_save, sender=TemporaryAccess)
 def send_mail_to_user(*args, **kwargs):
-    user = kwargs['instance']
+    access = kwargs['instance']
     if kwargs['created']:
-        """
-        Send Registration / Activation Mail
-        """
-        registration_info_mail_body = get_template('registration.html')
         context = {
-            'user':user
+            'access':access
         }
-
-        mail = registration_info_mail_body.render(context)
+        if access.group == 'pw':
+            raw_mail_body = get_template('password_forgotten.html')
+        elif access.group == 'l':
+            raw_mail_body = get_template('tmp_access.html')
+        else:
+            raw_mail_body = get_template('registration.html')
+        mail = raw_mail_body.render(context)
         # print(mail)
+
 
 @receiver(pre_save, sender=User)
 def send_chainge_mail_to_user(*args,**kwargs):
@@ -47,7 +51,7 @@ def send_chainge_mail_to_user(*args,**kwargs):
         # print(mail)
 
 @receiver(user_logged_in)
-def send_login_mail(*args,**kwargs):
+def send_login_info_mail(*args,**kwargs):
     user = kwargs['user']
     if user.last_login is not None:
         """

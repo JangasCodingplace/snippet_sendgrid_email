@@ -3,7 +3,10 @@
 _config/
 manage.py
 migrations/
-User/
+User/User/
+User/apps.py
+User/urls.py
+User/__init__.py
 
 # Created by https://www.gitignore.io/api/django,python
 # Edit at https://www.gitignore.io/?templates=django,python
